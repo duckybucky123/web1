@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Inject HEADER + NAVBAR
   const headerHTML = `
     <!-- HEADER -->
     <header class="flex items-center justify-between px-6 py-4 bg-white shadow">
@@ -38,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const path = window.location.pathname;
   const isSearchAllowed = !path.includes("checkout.html") && !path.includes("order-tracking.html");
-
   if (isSearchAllowed) setupSearchAutocomplete();
 });
 
@@ -51,7 +49,12 @@ function renderAuthButtons() {
 
   if (isLoggedIn) {
     authDiv.innerHTML = `
-      <span class="text-sm">👋 Xin chào, <a href="admin.html" class="font-semibold hover:underline text-black">${user.username}</a></span>
+      <a href="admin.html" title="${user.username || 'Quản trị viên'}">
+        <img id="header-avatar" src="${user.avatar || './images(1).jpg'}"
+          alt="avatar"
+          class="w-9 h-9 rounded-full object-cover border border-gray-300 cursor-pointer hover:ring-2 ring-black transition"
+        />
+      </a>
       <button onclick="logout()" class="text-red-600 underline text-sm">Đăng xuất</button>
       <div class="relative group cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" onclick="window.location.href='cart.html'">
@@ -108,13 +111,9 @@ function setupCartPreview() {
 
   const render = () => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    if (cart.length === 0) {
-      previewContainer.innerHTML = `<p class="text-gray-500 text-sm">Giỏ hàng trống.</p>`;
-    } else {
-      previewContainer.innerHTML = cart
-        .map((item) => `<div class="mb-1">📘 ${item.title}</div>`)
-        .join("");
-    }
+    previewContainer.innerHTML = cart.length
+      ? cart.map(item => `<div class="mb-1">📘 ${item.title}</div>`).join("")
+      : `<p class="text-gray-500 text-sm">Giỏ hàng trống.</p>`;
   };
 
   document.querySelector(".group")?.addEventListener("mouseenter", render);
