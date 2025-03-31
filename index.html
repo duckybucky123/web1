@@ -8,9 +8,6 @@
 </head>
 <body class="bg-white text-gray-800 font-sans">
 
-  <!-- Header & Navbar -->
-  <script src="include-header.js"></script>
-
   <!-- Promo Section -->
   <main class="px-10 py-16 max-w-7xl mx-auto">
     <div class="flex flex-col lg:flex-row items-center justify-between gap-10 min-h-[500px]">
@@ -35,9 +32,14 @@
           alt="Elden Ring Official Art Book"
           class="rounded-xl shadow-xl w-[400px] h-[550px] object-cover"
         />
-        <script src="search-by-id.js"></script>
       </div>
     </div>
   </main>
+
+  <!-- Scripts (đặt cuối để chắc chắn DOM đã sẵn sàng) -->
+  <script src="include-header.js"></script>
+  <script src="register.html"></script>
+  <script src="register.js"></script>
+  <script src="search-by-id.js"></script>
 </body>
 </html>
