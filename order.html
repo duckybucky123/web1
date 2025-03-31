@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đơn hàng của bạn | Bookstore</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <main class="max-w-3xl mx-auto p-6 mt-10 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">🧾 Đơn hàng của bạn</h1>
+    <div id="order-list" class="space-y-4"></div>
+  </main>
+
+  <script>
+    const order = JSON.parse(localStorage.getItem("currentOrder") || "null");
+    const container = document.getElementById("order-list");
+
+    if (!order) {
+      container.innerHTML = "<p class='text-gray-500'>Không có đơn hàng nào gần đây.</p>";
+    } else {
+      const items = order.items.map(item => `<li>${item.title} × ${item.qty || 1}</li>`).join("");
+
+      container.innerHTML = `
+        <p><strong>Khách hàng:</strong> ${order.customer.name}</p>
+        <p><strong>SĐT:</strong> ${order.customer.phone}</p>
+        <p><strong>Địa chỉ:</strong> ${order.customer.address}</p>
+        <p><strong>Phương thức:</strong> ${order.payment}</p>
+        <p><strong>Tổng tiền:</strong> ${order.total}</p>
+        <ul class="list-disc list-inside mt-2">${items}</ul>
+        <a href="order-tracking.html" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Theo dõi đơn hàng</a>
+      `;
+    }
+  </script>
+</body>
+</html>

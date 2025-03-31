@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Inject HEADER + NAVBAR
   const headerHTML = `
     <!-- HEADER -->
     <header class="flex items-center justify-between px-6 py-4 bg-white shadow">
@@ -6,11 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
         <a href="/">
           <img src="./images(1).jpg" alt="logo" width="40" class="h-10 w-10 rounded-full object-cover" />
         </a>
-        <input
-          type="text"
-          placeholder="Search books, authors, ISBNs"
-          class="border rounded-md px-4 py-2 w-80 shadow-sm"
-        />
+        <div class="relative w-80">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search books, authors, ISBNs"
+            class="border rounded-md px-4 py-2 w-full shadow-sm"
+            autocomplete="off"
+          />
+          <ul id="search-suggestions" class="absolute left-0 right-0 bg-white border mt-1 rounded shadow z-50 text-sm max-h-64 overflow-y-auto hidden"></ul>
+        </div>
       </div>
       <div class="flex items-center gap-3 auth-buttons">
         <!-- Auth buttons sẽ được render bằng JavaScript -->
@@ -29,10 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderAuthButtons();
   updateCartCount();
+
+  const path = window.location.pathname;
+  const isSearchAllowed = !path.includes("checkout.html") && !path.includes("order-tracking.html");
+
+  if (isSearchAllowed) setupSearchAutocomplete();
 });
 
-// -------------------------
-// 👤 Login/Register hoặc Logout
 function renderAuthButtons() {
   const authDiv = document.querySelector(".auth-buttons");
   const isLoggedIn = localStorage.getItem("loggedIn") === "true";
@@ -42,24 +51,15 @@ function renderAuthButtons() {
 
   if (isLoggedIn) {
     authDiv.innerHTML = `
-      <span class="text-sm">👋 Xin chào, <strong>${user.username}</strong></span>
+      <span class="text-sm">👋 Xin chào, <a href="admin.html" class="font-semibold hover:underline text-black">${user.username}</a></span>
       <button onclick="logout()" class="text-red-600 underline text-sm">Đăng xuất</button>
       <div class="relative group cursor-pointer">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          onclick="window.location.href='cart.html'"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" onclick="window.location.href='cart.html'">
           <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" stroke-width="2" />
           <circle cx="9" cy="21" r="1" />
           <circle cx="20" cy="21" r="1" />
         </svg>
         <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">0</span>
-
-        <!-- Hover Popover -->
         <div id="cart-preview" class="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-3 hidden group-hover:block z-50 text-sm">
           <div id="cart-items-preview">Đang tải...</div>
         </div>
@@ -78,8 +78,6 @@ function renderAuthButtons() {
           <circle cx="20" cy="21" r="1" />
         </svg>
         <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">0</span>
-
-        <!-- Hover Popover -->
         <div id="cart-preview" class="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-3 hidden group-hover:block z-50 text-sm">
           <div id="cart-items-preview">Đang tải...</div>
         </div>
@@ -98,86 +96,12 @@ function logout() {
   location.reload();
 }
 
-// -------------------------
-// 🔁 Hiển thị số lượng + nội dung giỏ hàng
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const badge = document.getElementById("cart-count");
   if (badge) badge.textContent = cart.length;
 }
-// Hiển thị modal
-function openAddModal() {
-  document.getElementById("book-modal").classList.remove("hidden");
-}
 
-// Ẩn modal
-function closeAddModal() {
-  document.getElementById("book-modal").classList.add("hidden");
-  document.getElementById("book-form").reset();
-}
-
-// Load dữ liệu sách từ localStorage
-function loadBooks() {
-  const books = JSON.parse(localStorage.getItem("books") || "[]");
-  const tbody = document.getElementById("book-table-body");
-  tbody.innerHTML = "";
-
-  books.forEach((book, index) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="py-2 px-4">${book.title}</td>
-      <td class="py-2 px-4">${book.author}</td>
-      <td class="py-2 px-4">${book.isbn}</td>
-      <td class="py-2 px-4">${book.published}</td>
-      <td class="py-2 px-4">${book.genre}</td>
-      <td class="py-2 px-4">
-        <button class="text-blue-600 hover:underline mr-2" onclick="editBook(${index})">Edit</button>
-        <button class="text-red-600 hover:underline" onclick="deleteBook(${index})">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-// Xoá sách
-function deleteBook(index) {
-  const books = JSON.parse(localStorage.getItem("books") || "[]");
-  books.splice(index, 1);
-  localStorage.setItem("books", JSON.stringify(books));
-  loadBooks();
-}
-// Thêm sách mới
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("book-form");
-  if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-      const books = JSON.parse(localStorage.getItem("books") || "[]");
-
-      if (form.image.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          data.image = e.target.result;
-          books.push(data);
-          localStorage.setItem("books", JSON.stringify(books));
-          closeAddModal();
-          loadBooks();
-        };
-        reader.readAsDataURL(form.image.files[0]);
-      } else {
-        books.push(data);
-        localStorage.setItem("books", JSON.stringify(books));
-        closeAddModal();
-        loadBooks();
-      }
-    });
-  }
-
-  loadBooks();
-});
-// 🎯 Preview giỏ hàng mỗi khi hover
 function setupCartPreview() {
   const previewContainer = document.getElementById("cart-items-preview");
   if (!previewContainer) return;
@@ -188,10 +112,88 @@ function setupCartPreview() {
       previewContainer.innerHTML = `<p class="text-gray-500 text-sm">Giỏ hàng trống.</p>`;
     } else {
       previewContainer.innerHTML = cart
-        .map((item, i) => `<div class="mb-1">📘 ${item.title}</div>`)
+        .map((item) => `<div class="mb-1">📘 ${item.title}</div>`)
         .join("");
     }
   };
 
   document.querySelector(".group")?.addEventListener("mouseenter", render);
+}
+
+// 🔍 Autocomplete Search
+function setupSearchAutocomplete() {
+  const input = document.getElementById("search-input");
+  const suggestBox = document.getElementById("search-suggestions");
+
+  if (!input || !suggestBox) return;
+
+  input.addEventListener("input", () => {
+    const query = input.value.trim().toLowerCase();
+    const books = JSON.parse(localStorage.getItem("books") || "[]");
+
+    if (!query) {
+      suggestBox.innerHTML = "";
+      suggestBox.classList.add("hidden");
+      return;
+    }
+
+    const matched = books.filter(book =>
+      book.id?.toString().includes(query) ||
+      book.title?.toLowerCase().includes(query) ||
+      book.isbn?.toLowerCase().includes(query) ||
+      book.author?.toLowerCase().includes(query)
+    );
+
+    if (matched.length === 0) {
+      suggestBox.innerHTML = `<li class="px-4 py-2 text-gray-500">Không tìm thấy kết quả</li>`;
+      suggestBox.classList.remove("hidden");
+      return;
+    }
+
+    suggestBox.innerHTML = matched
+      .slice(0, 10)
+      .map(book => `
+        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" data-id="${book.id}">
+          📘 ${book.title} - ${book.author || "Không rõ"}
+        </li>
+      `).join("");
+    suggestBox.classList.remove("hidden");
+
+    document.querySelectorAll("#search-suggestions li").forEach(item => {
+      item.addEventListener("click", () => {
+        const id = item.dataset.id;
+        const selectedBook = books.find(b => b.id?.toString() === id);
+        if (selectedBook) {
+          localStorage.setItem("selectedBook", JSON.stringify(selectedBook));
+          window.location.href = "book-detail.html";
+        }
+      });
+    });
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const query = input.value.trim().toLowerCase();
+      const books = JSON.parse(localStorage.getItem("books") || "[]");
+      const result = books.find(book =>
+        book.id?.toString() === query ||
+        book.title?.toLowerCase().includes(query) ||
+        book.isbn?.toLowerCase().includes(query) ||
+        book.author?.toLowerCase().includes(query)
+      );
+      if (result) {
+        localStorage.setItem("selectedBook", JSON.stringify(result));
+        window.location.href = "book-detail.html";
+      } else {
+        alert("Không tìm thấy sách phù hợp.");
+      }
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!input.contains(e.target) && !suggestBox.contains(e.target)) {
+      suggestBox.classList.add("hidden");
+    }
+  });
 }

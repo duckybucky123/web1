@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng ký | Bookstore</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans flex justify-center items-center min-h-screen">
+  <div class="bg-white p-6 rounded shadow max-w-md w-full">
+    <h1 class="text-2xl font-bold mb-4 text-center">Đăng ký tài khoản</h1>
+    <input type="text" id="username" placeholder="Tên đăng nhập" class="border w-full px-3 py-2 rounded mb-3" />
+    <input type="email" id="email" placeholder="Email" class="border w-full px-3 py-2 rounded mb-3" />
+    <input type="password" id="password" placeholder="Mật khẩu" class="border w-full px-3 py-2 rounded mb-3" />
+    <input type="date" id="dob" class="border w-full px-3 py-2 rounded mb-4" />
+
+    <button onclick="register()" class="bg-black text-white w-full py-2 rounded hover:bg-gray-800">
+      Đăng ký
+    </button>
+    <p class="text-sm text-center mt-4">Đã có tài khoản? <a href="login.html" class="text-blue-600 hover:underline">Đăng nhập</a></p>
+  </div>
+
+  <script>
+    function register() {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const dob = document.getElementById("dob").value;
+
+      if (!username || !email || !password || !dob) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      const user = { username, email, password, dob };
+      localStorage.setItem("user", JSON.stringify(user));
+      alert("Đăng ký thành công!");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

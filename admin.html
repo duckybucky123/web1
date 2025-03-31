@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang quản trị | Bookstore</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r shadow p-6 space-y-6">
+      <div class="text-center">
+        <img src="avatar.png" alt="Avatar" class="w-24 h-24 rounded-full mx-auto mb-2" id="admin-avatar">
+        <p class="font-semibold" id="admin-name">Tên người dùng</p>
+      </div>
+      <nav class="space-y-3">
+        <button onclick="showSection('info')" class="w-full text-left hover:font-semibold">👤 Thông tin cá nhân</button>
+        <button onclick="showSection('password')" class="w-full text-left hover:font-semibold">🔒 Đổi mật khẩu</button>
+        <button onclick="showSection('orders')" class="w-full text-left hover:font-semibold">📦 Đơn hàng</button>
+      </nav>
+    </aside>
+
+    <!-- Nội dung chính -->
+    <main class="flex-1 p-6 bg-white">
+      <div id="section-info" class="section space-y-4">
+        <h2 class="text-xl font-bold mb-4">👤 Thông tin cá nhân</h2>
+        <input type="text" id="admin-username" class="border w-full p-2 rounded" placeholder="Tên đăng nhập" />
+        <input type="email" id="admin-email" class="border w-full p-2 rounded" placeholder="Email" />
+        <input type="date" id="admin-dob" class="border w-full p-2 rounded" />
+        <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Lưu thay đổi</button>
+      </div>
+
+      <div id="section-password" class="section hidden space-y-4">
+        <h2 class="text-xl font-bold mb-4">🔒 Đổi mật khẩu</h2>
+        <input type="password" class="border w-full p-2 rounded" placeholder="Mật khẩu cũ" />
+        <input type="password" class="border w-full p-2 rounded" placeholder="Mật khẩu mới" />
+        <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Cập nhật</button>
+      </div>
+
+      <div id="section-orders" class="section hidden">
+        <h2 class="text-xl font-bold mb-4">📦 Đơn hàng của bạn</h2>
+        <iframe src="order.html" class="w-full h-[500px] border rounded"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`section-${id}`).classList.remove('hidden');
+    }
+
+    // Gán tên người dùng
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user.username) {
+      document.getElementById("admin-name").textContent = user.username;
+      document.getElementById("admin-username").value = user.username;
+      document.getElementById("admin-email").value = user.email || "";
+      document.getElementById("admin-dob").value = user.dob || "";
+    }
+  </script>
+  <script src="include-header.js"></script>
+  <script src="search-by-id.js"></script>
+</body>
+</html>

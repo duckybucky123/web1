@@ -7,53 +7,37 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
-  <div class="max-w-4xl mx-auto p-6 bg-white mt-8 rounded shadow">
-    <h1 class="text-3xl font-bold mb-6">Xác nhận đơn hàng</h1>
+  <div class="max-w-4xl mx-auto p-6 bg-white mt-10 rounded shadow">
+    <h1 class="text-3xl font-bold mb-6">📦 Xác nhận đơn hàng</h1>
 
-    <!-- Danh sách sách -->
     <div id="checkout-items" class="space-y-4 mb-6"></div>
-
-    <!-- Tổng tiền -->
     <div class="text-right text-xl font-semibold mb-6">
       Tổng cộng: <span id="total-amount">0đ</span>
     </div>
 
-    <!-- Thông tin người nhận -->
-    <div class="mb-6 space-y-4">
-      <input type="text" id="customer-name" placeholder="Họ tên người nhận" class="w-full border px-4 py-2 rounded" required />
-      <input type="text" id="customer-phone" placeholder="Số điện thoại" class="w-full border px-4 py-2 rounded" required />
-      <input type="text" id="customer-address" placeholder="Địa chỉ giao hàng" class="w-full border px-4 py-2 rounded" required />
+    <div class="mb-6 space-y-3">
+      <input type="text" id="customer-name" placeholder="Họ tên người nhận" class="w-full border px-4 py-2 rounded" />
+      <input type="text" id="customer-phone" placeholder="Số điện thoại" class="w-full border px-4 py-2 rounded" />
+      <input type="text" id="customer-address" placeholder="Địa chỉ giao hàng" class="w-full border px-4 py-2 rounded" />
     </div>
 
-    <!-- Mã giảm giá -->
     <div class="flex gap-4 mb-6">
       <select id="discount-code" class="border px-4 py-2 rounded w-full">
-        <option value="">-- Chọn mã giảm giá --</option>
+        <option value="">-- Mã giảm giá --</option>
         <option value="LOVEBOOK">LOVEBOOK - Giảm 15.000đ</option>
-        <option value="USAGI">USAGI - Giảm 15.000đ</option>
         <option value="CHIIKAWA">CHIIKAWA - Giảm 15.000đ</option>
-        <option value="HACHIWARE">HACHIWARE - Giảm 15.000đ</option>
       </select>
       <button onclick="applyDiscount()" class="bg-black text-white px-4 py-2 rounded">Áp dụng</button>
     </div>
 
-    <!-- Phương thức thanh toán -->
     <div class="mb-6">
-      <label class="block mb-2 font-medium">Chọn phương thức thanh toán:</label>
-      <div class="space-y-2" id="payment-methods">
-        <label><input type="radio" name="payment" value="cod" checked /> Thanh toán khi nhận hàng</label><br>
-        <label><input type="radio" name="payment" value="credit" /> Thẻ tín dụng</label><br>
-        <label><input type="radio" name="payment" value="bank" /> Thẻ ngân hàng</label><br>
-        <label><input type="radio" name="payment" value="transfer" /> Chuyển khoản</label>
-      </div>
+      <p class="mb-2 font-medium">Chọn phương thức thanh toán:</p>
+      <label><input type="radio" name="payment" value="cod" checked /> Thanh toán khi nhận hàng</label><br>
+      <label><input type="radio" name="payment" value="credit" /> Thẻ tín dụng</label><br>
+      <label><input type="radio" name="payment" value="bank" /> Thẻ ngân hàng</label><br>
+      <label><input type="radio" name="payment" value="transfer" /> Chuyển khoản</label>
     </div>
 
-    <!-- Thông tin thanh toán bổ sung -->
-    <div id="payment-details" class="mb-6 hidden">
-      <!-- nội dung động -->
-    </div>
-
-    <!-- Nút xác nhận -->
     <div class="text-right">
       <button onclick="submitOrder()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded text-lg font-medium">
         Đặt hàng
@@ -61,6 +45,77 @@
     </div>
   </div>
 
-  <script src="checkout.js"></script>
+  <script>
+    const selectedBooks = JSON.parse(localStorage.getItem("checkout") || "[]");
+    let discount = 0;
+
+    function formatPrice(num) {
+      return num.toLocaleString("vi-VN") + "đ";
+    }
+
+    function parsePrice(str) {
+      return parseInt(str.replace(/\D/g, "") || "0");
+    }
+
+    function renderCheckoutItems() {
+      const container = document.getElementById("checkout-items");
+      let total = 0;
+      container.innerHTML = "";
+
+      selectedBooks.forEach(book => {
+        const qty = book.qty || 1;
+        const price = parsePrice(book.price);
+        total += qty * price;
+
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center border-b pb-2";
+        div.innerHTML = `
+          <div>
+            <h3 class="text-lg font-semibold">${book.title}</h3>
+            <p class="text-sm text-gray-500">Giá: ${formatPrice(price)} × ${qty}</p>
+          </div>
+          <p class="font-bold">${formatPrice(qty * price)}</p>
+        `;
+        container.appendChild(div);
+      });
+
+      total = total - discount;
+      document.getElementById("total-amount").textContent = formatPrice(Math.max(total, 0));
+    }
+
+    function applyDiscount() {
+      const code = document.getElementById("discount-code").value;
+      discount = ["LOVEBOOK", "CHIIKAWA"].includes(code.toUpperCase()) ? 15000 : 0;
+      renderCheckoutItems();
+    }
+
+    function submitOrder() {
+      const name = document.getElementById("customer-name").value;
+      const phone = document.getElementById("customer-phone").value;
+      const address = document.getElementById("customer-address").value;
+
+      if (!name || !phone || !address) {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+        return;
+      }
+
+      const order = {
+        items: selectedBooks,
+        total: document.getElementById("total-amount").textContent,
+        customer: { name, phone, address },
+        status: "Đang xử lý",
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem("currentOrder", JSON.stringify(order));
+      localStorage.removeItem("cart");
+      localStorage.removeItem("checkout");
+
+      alert("🎉 Đặt hàng thành công!");
+      window.location.href = "order-tracking.html";
+    }
+
+    renderCheckoutItems();
+  </script>
 </body>
 </html>

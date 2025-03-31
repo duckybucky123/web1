@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chi tiết sách | Bookstore</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <script src="../js/include-header.js"></script>
+  <div class="max-w-3xl mx-auto p-6 bg-white mt-10 rounded shadow">
+    <div id="book-detail" class="flex flex-col md:flex-row gap-6 mb-6">
+      <img id="book-image" src="" class="w-64 h-80 object-cover rounded shadow" />
+      <div>
+        <h1 id="book-title" class="text-3xl font-bold mb-2"></h1>
+        <p id="book-author" class="text-gray-600"></p>
+        <p id="book-genre" class="text-gray-600 mb-2"></p>
+        <p id="book-description" class="text-sm text-gray-700 mb-4"></p>
+        <p class="font-bold text-xl mb-3 text-green-700" id="book-price"></p>
+        <button onclick="addToCartFromDetail()" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
+          Thêm vào giỏ hàng
+        </button>
+      </div>
+    </div>
+    <div class="mb-6">
+      <h2 class="text-xl font-bold mb-2">⭐ Đánh giá trung bình: 
+        <span id="book-rating-stars"></span> 
+        <span id="book-rating-value" class="ml-2 text-base font-normal text-gray-700"></span>
+      </h2>
+    </div>
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">📢 Bình luận:</h3>
+      <div id="review-list" class="space-y-3 text-sm text-gray-800"></div>
+    </div>
+    <div class="mt-6">
+      <h4 class="font-semibold mb-2">📝 Gửi đánh giá của bạn:</h4>
+      <div id="rating-stars" class="mb-2"></div>
+      <textarea id="review-text" rows="3" class="w-full border rounded p-2 mb-2" placeholder="Viết nhận xét..."></textarea>
+      <button onclick="submitReview()" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Gửi đánh giá</button>
+    </div>
+  </div>
+  <script src="../js/book-detail.js"></script>
+  <script src="search-by-id.js"></script>
+</body>
+</html>

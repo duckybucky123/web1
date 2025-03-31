@@ -76,9 +76,16 @@ function submitOrder() {
     createdAt: new Date().toISOString()
   };
 
+  // ✅ Xử lý giữ lại những quyển sách chưa mua
+  const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const remainingCart = fullCart.filter(itemFull =>
+    !selectedBooks.some(itemBuy => itemBuy.title === itemFull.title)
+  );
+  localStorage.setItem("cart", JSON.stringify(remainingCart));
+
+  // ✅ Lưu đơn hàng và chuyển trang
   localStorage.setItem("currentOrder", JSON.stringify(order));
   localStorage.removeItem("checkout");
-  localStorage.removeItem("cart");
 
   alert("🎉 Đặt hàng thành công!");
   window.location.href = "order-tracking.html";
